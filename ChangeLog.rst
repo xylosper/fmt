@@ -1,3 +1,119 @@
+2.0.0 - TBD
+-----------
+
+* [Breaking] Changed default ``bool`` format to textual, "true" or "false"
+  (`#170 <https://github.com/cppformat/cppformat/issues/170>`_):
+
+  .. code:: c++
+  
+    fmt::print("{}", true); // prints "true"
+
+  To print ``bool`` as a number use numeric format specifier such as ``d``:
+
+  .. code:: c++
+
+    fmt::print("{:d}", true); // prints "1"
+
+* Improved support for custom character types
+  (`#171 <https://github.com/cppformat/cppformat/issues/171>`_).
+  Thanks to `@alfps (Alf P. Steinbach) <https://github.com/alfps>`_.
+
+* Placed the anonymous namespace within ``fmt`` namespace for the header-only
+  configuration
+  (`#171 <https://github.com/cppformat/cppformat/issues/171>`_).
+  Thanks to `@alfps (Alf P. Steinbach) <https://github.com/alfps>`_.
+
+* Added an option to disable use of ``windows.h`` when ``FMT_USE_WINDOWS_H``
+  is defined as 0 before including ``format.h``
+  (`#171 <https://github.com/cppformat/cppformat/issues/171>`_).
+  Thanks to `@alfps (Alf P. Steinbach) <https://github.com/alfps>`_.
+
+* Fixed out-of-tree documentation build
+  (`#177 <https://github.com/cppformat/cppformat/issues/177>`_).
+  Thanks to `@jackyf (Eugene V. Lyubimkin) <https://github.com/jackyf>`_.
+
+* [Breaking] Changed the library name from ``format`` to ``cppformat``
+  for consistency with the project name and to avoid potential conflicts
+  (`#178 <https://github.com/cppformat/cppformat/issues/178>`_).
+  Thanks to `@jackyf (Eugene V. Lyubimkin) <https://github.com/jackyf>`_.
+
+* [Breaking] Headers are now installed in
+  ``${CMAKE_INSTALL_PREFIX}/include/cppformat``
+  (`#178 <https://github.com/cppformat/cppformat/issues/178>`_).
+  Thanks to `@jackyf (Eugene V. Lyubimkin) <https://github.com/jackyf>`_.
+
+* [Breaking] ``BasicStringRef`` comparison operators now compare string
+  content, not pointers
+  (`#183 <https://github.com/cppformat/cppformat/issues/183>`_).
+
+* Dependency on pthreads introduced by Google Test is now optional
+  (`#185 <https://github.com/cppformat/cppformat/issues/185>`_).
+
+* Further improved performance of ``fmt::Writer`` on integer formatting
+  and fixed a minor regression. Now it is ~7% faster than ``karma::generate``
+  on Karma's benchmark
+  (`#186 <https://github.com/cppformat/cppformat/issues/186>`_).
+
+* Fixed most warnings reported by Coverity Scan
+  (`#187 <https://github.com/cppformat/cppformat/issues/187>`_,
+  `#192 <https://github.com/cppformat/cppformat/issues/192>`_).
+
+* Implemented a workaround for a name lookup bug in MSVC2010
+  (`#188 <https://github.com/cppformat/cppformat/issues/188>`_).
+
+* Fixed warnings in Clang and MSVC2013
+  (`#175 <https://github.com/cppformat/cppformat/issues/175>`_,
+  `#190 <https://github.com/cppformat/cppformat/issues/190>`_,
+  `#191 <https://github.com/cppformat/cppformat/pull/191>`_,
+  `#194 <https://github.com/cppformat/cppformat/issues/194>`_).
+  Thanks to `@rpopescu <https://github.com/rpopescu>`_,
+  `@gabime (Gabi Melman) <https://github.com/gabime>`_ and
+  `@cubicool (Jeremy Moles) <https://github.com/cubicool>`_.
+
+* [Breaking] ``fmt::(s)printf`` now supports formatting of objects of user-defined types
+  that provide an overloaded ``std::ostream`` insertion operator (``operator<<``)
+  (`#201 <https://github.com/cppformat/cppformat/issues/201>`_):
+
+  .. code:: c++
+
+    fmt::printf("The date is %s", Date(2012, 12, 9));
+
+* Fixed portability issues in tests causing failures on ARM, ppc64, ppc64le
+  and s390x (
+  `#179 <https://github.com/cppformat/cppformat/issues/179>`_,
+  `#180 <https://github.com/cppformat/cppformat/issues/180>`_,
+  `#202 <https://github.com/cppformat/cppformat/issues/202>`_,
+  `Red Hat Bugzilla Bug 1260297 <https://bugzilla.redhat.com/show_bug.cgi?id=1260297>`_).
+  Thanks to `@jackyf (Eugene V. Lyubimkin) <https://github.com/jackyf>`_ and Dave Johansen.
+
+* Added an option to disable use of IOStreams when ``FMT_USE_IOSTREAMS``
+  is defined as 0 before including ``format.h``
+  (`#205 <https://github.com/cppformat/cppformat/issues/205>`_,
+  `#208 <https://github.com/cppformat/cppformat/pull/208>`_).
+  Thanks to `@JodiTheTigger <https://github.com/JodiTheTigger>`_.
+
+* Added `Building the documentation
+  <http://cppformat.github.io/dev/usage.html#building-the-documentation>`_
+  section to the documentation.
+
+* Documentation build script is now compatible with Python 3
+  (`#209 <https://github.com/cppformat/cppformat/issues/209>`_).
+
+* Fixed documentation layout issues on medium screen sizes
+  (`#210 <https://github.com/cppformat/cppformat/issues/210>`_).
+
+* Fixed a name conflict with macro ``free`` defined in
+  ``crtdbg.h`` when ``_CRTDBG_MAP_ALLOC`` is set
+  (`#211 <https://github.com/cppformat/cppformat/issues/211>`_).
+
+* Fixed an overload conflict in MSVC when ``/Zc:wchar_t-`` option is specified
+  (`#214 <https://github.com/cppformat/cppformat/pull/214>`_).
+  Thanks to `@slavanap (Vyacheslav Napadovsky) <https://github.com/slavanap>`_.
+
+* ``noexcept`` is now used when compiling with MSVC2015
+  (`#215 <https://github.com/cppformat/cppformat/pull/215>`_).
+  Thanks to `@dmkrepo (Dmitriy) <https://github.com/dmkrepo>`_.
+
 1.1.0 - 2015-03-06
 ------------------
 

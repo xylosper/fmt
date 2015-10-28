@@ -162,7 +162,8 @@ inline uint32_t clzll(uint64_t x) {
 // Define FMT_USE_NOEXCEPT to make C++ Format use noexcept (C++11 feature).
 #ifndef FMT_NOEXCEPT
 # if FMT_USE_NOEXCEPT || FMT_HAS_FEATURE(cxx_noexcept) || \
-   (FMT_GCC_VERSION >= 408 && FMT_HAS_GXX_CXX11)
+   (FMT_GCC_VERSION >= 408 && FMT_HAS_GXX_CXX11) || \
+   _MSC_VER >= 1900
 #  define FMT_NOEXCEPT noexcept
 # else
 #  define FMT_NOEXCEPT throw()
@@ -287,15 +288,30 @@ class BasicStringRef {
   /** Returns the string size. */
   std::size_t size() const { return size_; }
 
+  // Lexicographically compare this string reference to other.
+  int compare(BasicStringRef other) const {
+    std::size_t size = std::min(size_, other.size_);
+    int result = std::char_traits<Char>::compare(data_, other.data_, size);
+    return result != 0 ? result : size_ - other.size_;
+  }
+
   friend bool operator==(BasicStringRef lhs, BasicStringRef rhs) {
-    return lhs.data_ == rhs.data_;
+    return lhs.compare(rhs) == 0;
   }
   friend bool operator!=(BasicStringRef lhs, BasicStringRef rhs) {
-    return lhs.data_ != rhs.data_;
+    return lhs.compare(rhs) != 0;
   }
   friend bool operator<(BasicStringRef lhs, BasicStringRef rhs) {
-    return std::lexicographical_compare(
-          lhs.data_, lhs.data_ + lhs.size_, rhs.data_, rhs.data_ + rhs.size_);
+    return lhs.compare(rhs) < 0;
+  }
+  friend bool operator<=(BasicStringRef lhs, BasicStringRef rhs) {
+    return lhs.compare(rhs) <= 0;
+  }
+  friend bool operator>(BasicStringRef lhs, BasicStringRef rhs) {
+    return lhs.compare(rhs) > 0;
+  }
+  friend bool operator>=(BasicStringRef lhs, BasicStringRef rhs) {
+    return lhs.compare(rhs) >= 0;
   }
 };
 
@@ -925,7 +941,9 @@ class MakeValue : public Arg {
   // characters and strings into narrow strings as in
   //   fmt::format("{}", L"test");
   // To fix this, use a wide format string: fmt::format(L"{}", L"test").
+#if !defined(_MSC_VER) || defined(_NATIVE_WCHAR_T_DEFINED)
   MakeValue(typename WCharHelper<wchar_t, Char>::Unsupported);
+#endif
   MakeValue(typename WCharHelper<wchar_t *, Char>::Unsupported);
   MakeValue(typename WCharHelper<const wchar_t *, Char>::Unsupported);
   MakeValue(typename WCharHelper<const std::wstring &, Char>::Unsupported);
@@ -998,10 +1016,12 @@ class MakeValue : public Arg {
   FMT_MAKE_VALUE(unsigned char, int_value, CHAR)
   FMT_MAKE_VALUE(char, int_value, CHAR)
 
+#if !defined(_MSC_VER) || defined(_NATIVE_WCHAR_T_DEFINED)
   MakeValue(typename WCharHelper<wchar_t, Char>::Supported value) {
     int_value = value;
   }
   static uint64_t type(wchar_t) { return Arg::CHAR; }
+#endif
 
 #define FMT_MAKE_STR_VALUE(Type, TYPE) \
   MakeValue(Type value) { set_string(value); } \
