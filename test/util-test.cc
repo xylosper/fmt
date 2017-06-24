@@ -66,18 +66,22 @@ namespace {
 
 struct Test {};
 
-template <typename Char>
-void format_value(fmt::basic_buffer<Char> &b, Test,
-                  fmt::basic_context<Char> &) {
-  const Char *test = "test";
-  b.append(test, test + std::strlen(test));
-}
-
 template <typename Context, typename T>
 basic_arg<Context> make_arg(const T &value) {
   return fmt::internal::make_arg<Context>(value);
 }
 }  // namespace
+
+namespace fmt {
+template <typename T, typename Char, typename = enable_format<T, Test>>
+auto parse_format(basic_context<Char>&)
+    -> std::function<void (basic_buffer<Char> &b, Test)> {
+  return [](basic_buffer<Char> &b, Test) {
+    const Char *test = "test";
+    b.append(test, test + std::strlen(test));
+  };
+}
+}
 
 void CheckForwarding(
     MockAllocator<int> &alloc, AllocatorRef< MockAllocator<int> > &ref) {
@@ -428,8 +432,11 @@ struct CustomContext {
   bool called;
 };
 
-void format_value(fmt::buffer &, const Test &, CustomContext &ctx) {
+template <typename T, typename = fmt::enable_format<T, Test>>
+auto parse_format(CustomContext &ctx)
+    -> std::function<void (fmt::buffer &, Test)> {
   ctx.called = true;
+  return [](fmt::buffer &, Test) {};
 }
 
 TEST(UtilTest, MakeValueWithCustomFormatter) {

@@ -80,14 +80,16 @@ void format_value(basic_buffer<Char> &buffer, const T &value) {
 }  // namespace internal
 
 // Formats a value.
-template <typename Char, typename T>
-void format_value(basic_buffer<Char> &buf, const T &value,
-                  basic_context<Char> &ctx) {
-  basic_memory_buffer<Char> buffer;
-  internal::format_value(buffer, value);
-  basic_string_view<Char> str(buffer.data(), buffer.size());
-  do_format_arg< arg_formatter<Char> >(
-        buf, internal::make_arg< basic_context<Char> >(str), ctx);
+template <typename T, typename Char>
+auto parse_format(basic_context<Char> &ctx)
+    -> std::function<void(basic_buffer<Char> &, const T &)> {
+  return [&ctx](basic_buffer<Char> &buf, const T &value) {
+    basic_memory_buffer<Char> buffer;
+    internal::format_value(buffer, value);
+    basic_string_view<Char> str(buffer.data(), buffer.size());
+    do_format_arg< arg_formatter<Char> >(
+          buf, internal::make_arg< basic_context<Char> >(str), ctx);
+  };
 }
 
 FMT_API void vprint(std::ostream &os, cstring_view format_str, args args);

@@ -1237,8 +1237,13 @@ TEST(FormatterTest, FormatCStringView) {
   EXPECT_EQ("test", format("{0}", cstring_view("test")));
 }
 
-void format_value(fmt::buffer &buf, const Date &d, fmt::context &) {
-  fmt::format_to(buf, "{}-{}-{}", d.year(), d.month(), d.day());
+namespace fmt {
+template <typename T, typename = enable_format<T, Date>>
+auto parse_format(context &) -> std::function<void(buffer &, const Date &)> {
+  return [](buffer &buf, const Date &d) {
+    format_to(buf, "{}-{}-{}", d.year(), d.month(), d.day());
+  };
+}
 }
 
 TEST(FormatterTest, FormatCustom) {
@@ -1249,9 +1254,13 @@ TEST(FormatterTest, FormatCustom) {
 
 class Answer {};
 
-template <typename Char>
-void format_value(fmt::basic_buffer<Char> &buf, Answer, fmt::context &) {
-  fmt::format_to(buf, "{}", 42);
+namespace fmt {
+template <typename T, typename = fmt::enable_format<T, Answer>>
+auto parse_format(context &) -> std::function<void(buffer &, Answer)> {
+  return [](buffer &buf, Answer) {
+    format_to(buf, "{}", 42);
+  };
+}
 }
 
 TEST(FormatterTest, CustomFormat) {

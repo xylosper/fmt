@@ -392,6 +392,18 @@ class basic_context;
 typedef basic_context<char> context;
 typedef basic_context<wchar_t> wcontext;
 
+// Marks function as a format string parser for objects of type U.
+// Usage:
+//   template <typename T, typename = enable_format<T, MyClass>
+//   auto parse_format(context& ctx);
+//
+//   auto formatter = parse_format<MyClass>(ctx);
+template <typename T, typename U>
+using enable_format = typename std::enable_if<std::is_same<T, U>::value>::type;
+
+template <typename T>
+void parse_format();
+
 /**
   \rst
   An implementation of ``std::basic_string_view`` for pre-C++17. It provides a
@@ -1266,8 +1278,8 @@ class value {
   template <typename T>
   static void format_custom_arg(
       basic_buffer<Char> &buffer, const void *arg, void *context) {
-    format_value(buffer, *static_cast<const T*>(arg),
-                 *static_cast<Context*>(context));
+    parse_format<T>(*static_cast<Context*>(context))(
+          buffer, *static_cast<const T*>(arg));
   }
 
  public:
@@ -1505,14 +1517,6 @@ basic_arg<Context> make_arg(const T &value) {
 # define FMT_STATIC_ASSERT(cond, message) \
   typedef int FMT_CONCAT_(Assert, __LINE__)[(cond) ? 1 : -1] FMT_UNUSED
 #endif
-
-template <typename Formatter, typename T, typename Char>
-void format_value(basic_buffer<Char> &, const T &, Formatter &, const Char *) {
-  FMT_STATIC_ASSERT(sizeof(T) < 0,
-                    "Cannot format argument. To enable the use of ostream "
-                    "operator<< include fmt/ostream.h. Otherwise provide "
-                    "an overload of format_value.");
-}
 
 template <typename Context>
 struct named_arg : basic_arg<Context> {

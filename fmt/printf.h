@@ -507,10 +507,12 @@ void printf_context<Char, AF>::format(basic_buffer<Char> &buffer) {
 }
 
 // Formats a value.
-template <typename Char, typename T>
-void format_value(basic_buffer<Char> &buf, const T &value,
-                  printf_context<Char>& ctx) {
-  internal::format_value(buf, value);
+template <typename T, typename Char>
+auto parse_format(printf_context<Char>& )
+    -> std::function<void(basic_buffer<Char> &, const T &)> {
+  return [](basic_buffer<Char> &buf, const T &value) {
+    return internal::format_value(buf, value);
+  };
 }
 
 template <typename Char>
